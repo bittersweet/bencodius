@@ -18,11 +18,21 @@ type BencodeString string
 
 func (value BencodeString) isBencoded() {}
 
+type OMap struct {
+	keys []BencodeString
+	dict map[BencodeString]BencodeValue
+}
+
+func (o *OMap) insert(key BencodeString, value BencodeValue) {
+	o.keys = append(o.keys, key)
+	o.dict[key] = value
+}
+
 type BencodeList []BencodeValue
 
 func (values BencodeList) isBencoded() {}
 
-type BencodeDict map[BencodeString]BencodeValue
+type BencodeDict OMap
 
 func (values BencodeDict) isBencoded() {}
 
@@ -102,10 +112,11 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 	// d2:eei2ee -> {"ee" : 2} d4:moni1:2e -> {"moni" : "2"}
 
 	var (
-		next  int
-		dict  = make(map[BencodeString]BencodeValue)
-		key   BencodeString
-		value BencodeValue
+		next          int
+		internal_dict = make(map[BencodeString]BencodeValue)
+		dict          = OMap{keys: make([]BencodeString, 0, 1024), dict: internal_dict}
+		key           BencodeString
+		value         BencodeValue
 	)
 
 	for next = index; next < len(data); {
@@ -114,7 +125,7 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 		}
 		key, next = decodeString(data, next)
 		value, next = decodeValue(data, next)
-		dict[key] = value
+		dict.insert(key, value)
 	}
 	return BencodeDict(dict), next + 1
 }
@@ -134,36 +145,11 @@ func Encode(data BencodeValue) string {
 		out = fmt.Sprintf("l%se", strings.Join(result, ""))
 	case BencodeDict:
 		result := []string{}
-		for y, z := range v {
+		for _, y := range v.keys {
+			z := v.dict[y]
 			result = append(append(result, Encode(y)), Encode(z))
 		}
 		out = fmt.Sprintf("d%se", strings.Join(result, ""))
-	}
-	return out
-}
-
-func DisplayHuman(data BencodeValue) string {
-	var out string
-	switch v := data.(type) {
-	case BencodeInt:
-		out = fmt.Sprintf("%d", v)
-	case BencodeString:
-		out = fmt.Sprintf("\"%s\"", v)
-	case BencodeList:
-		result := []string{}
-		for _, a := range v {
-			result = append(result, DisplayHuman(a))
-		}
-		out = fmt.Sprintf("[%s]", strings.Join(result, ""))
-	case BencodeDict:
-		result := []string{}
-		for y, z := range v {
-			if y != "pieces" {
-				result = append(result, fmt.Sprintf("%s : %s",
-					DisplayHuman(y), DisplayHuman(z)))
-			}
-		}
-		out = fmt.Sprintf("{%s}", strings.Join(result, ""))
 	}
 	return out
 }
