@@ -28,6 +28,14 @@ func (o *OMap) insert(key BencodeString, value BencodeValue) {
 	o.dict[key] = value
 }
 
+func (o *OMap) get(key string) BencodeValue {
+	return o.dict[BencodeString(key)]
+}
+
+func (o *OMap) wtf() string {
+	return "wtf"
+}
+
 type BencodeList []BencodeValue
 
 func (values BencodeList) isBencoded() {}
