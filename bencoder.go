@@ -32,6 +32,10 @@ func (o *BencodeDict) Insert(key BencodeString, value BencodeValue) {
 	o.Dict[key] = value
 }
 
+func (o *BencodeDict) Update(key string, value BencodeValue) {
+	o.Dict[BencodeString(key)] = value
+}
+
 func (o *BencodeDict) Get(key string) BencodeValue {
 	return o.Dict[BencodeString(key)]
 }
