@@ -23,21 +23,17 @@ type BencodeList []BencodeValue
 func (values BencodeList) isBencoded() {}
 
 type BencodeDict struct {
-	keys []BencodeString
-	dict map[BencodeString]BencodeValue
+	Keys []BencodeString
+	Dict map[BencodeString]BencodeValue
 }
 
-func (o *BencodeDict) insert(key BencodeString, value BencodeValue) {
-	o.keys = append(o.keys, key)
-	o.dict[key] = value
+func (o *BencodeDict) Insert(key BencodeString, value BencodeValue) {
+	o.Keys = append(o.Keys, key)
+	o.Dict[key] = value
 }
 
-func (o *BencodeDict) get(key string) BencodeValue {
-	return o.dict[BencodeString(key)]
-}
-
-func (o *BencodeDict) wtf() string {
-	return "wtf"
+func (o *BencodeDict) Get(key string) BencodeValue {
+	return o.Dict[BencodeString(key)]
 }
 
 func (values BencodeDict) isBencoded() {}
@@ -120,7 +116,7 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 	var (
 		next          int
 		internal_dict = make(map[BencodeString]BencodeValue)
-		dict          = BencodeDict{keys: make([]BencodeString, 0, 1024), dict: internal_dict}
+		dict          = BencodeDict{Keys: make([]BencodeString, 0, 1024), Dict: internal_dict}
 		key           BencodeString
 		value         BencodeValue
 	)
@@ -131,7 +127,7 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 		}
 		key, next = decodeString(data, next)
 		value, next = decodeValue(data, next)
-		dict.insert(key, value)
+		dict.Insert(key, value)
 	}
 	return dict, next + 1
 }
@@ -151,8 +147,8 @@ func Encode(data BencodeValue) string {
 		out = fmt.Sprintf("l%se", strings.Join(result, ""))
 	case BencodeDict:
 		result := []string{}
-		for _, y := range v.keys {
-			z := v.dict[y]
+		for _, y := range v.Keys {
+			z := v.Dict[y]
 			result = append(append(result, Encode(y)), Encode(z))
 		}
 		out = fmt.Sprintf("d%se", strings.Join(result, ""))

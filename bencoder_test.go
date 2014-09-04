@@ -28,26 +28,26 @@ func TestDecodingList(t *testing.T) {
 func TestDecodingDict(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal(Decode("d2:lai2e1:zd1:aleee"), BencodeDict{
-		keys: []BencodeString{"la", "z"},
-		dict: map[BencodeString]BencodeValue{
+		Keys: []BencodeString{"la", "z"},
+		Dict: map[BencodeString]BencodeValue{
 			"la": BencodeInt(2),
 			"z": BencodeDict{
-				keys: []BencodeString{"a"},
-				dict: map[BencodeString]BencodeValue{
+				Keys: []BencodeString{"a"},
+				Dict: map[BencodeString]BencodeValue{
 					BencodeString("a"): BencodeList([]BencodeValue{})}}}},
-		"it should decode dicts")
+		"it should decode Dicts")
 	assert.Equal(Decode("de"), BencodeDict{
-		keys: []BencodeString{},
-		dict: map[BencodeString]BencodeValue{}})
+		Keys: []BencodeString{},
+		Dict: map[BencodeString]BencodeValue{}})
 }
 
 func TestDecoding(t *testing.T) {
 	assert := assert.New(t)
 	data, _ := ioutil.ReadFile("test/leaves.torrent")
 	assert.Equal(Decode(string(data)), BencodeDict{
-		keys: []BencodeString{"announce", "announce-list", "comment", "created by", "creation date",
+		Keys: []BencodeString{"announce", "announce-list", "comment", "created by", "creation date",
 			"encoding", "info"},
-		dict: map[BencodeString]BencodeValue{
+		Dict: map[BencodeString]BencodeValue{
 			"announce": BencodeString("http://tracker.thepiratebay.org/announce"),
 			"announce-list": BencodeList([]BencodeValue{
 				BencodeList([]BencodeValue{BencodeString("http://tracker.thepiratebay.org/announce")}),
@@ -61,8 +61,8 @@ func TestDecoding(t *testing.T) {
 			"creation date": BencodeInt(1375363666),
 			"encoding":      BencodeString("UTF-8"),
 			"info": BencodeDict{
-				keys: []BencodeString{"length", "name", "piece length", "pieces"},
-				dict: map[BencodeString]BencodeValue{
+				Keys: []BencodeString{"length", "name", "piece length", "pieces"},
+				Dict: map[BencodeString]BencodeValue{
 					"length":       BencodeInt(362017),
 					"name":         BencodeString("Leaves of Grass by Walt Whitman.epub"),
 					"piece length": BencodeInt(16384),
@@ -75,8 +75,8 @@ func TestEncoding(t *testing.T) {
 	assert.Equal(Encode(BencodeInt(2)), "i2e", "it encodes integers")
 	assert.Equal(Encode(BencodeString("girl")), "4:girl", "it encodes strings")
 	assert.Equal(Encode(BencodeDict{
-		keys: []BencodeString{"e"},
-		dict: map[BencodeString]BencodeValue{
-			BencodeString("e"): BencodeString("?")}}), "d1:e1:?e", "it encodes dicts")
+		Keys: []BencodeString{"e"},
+		Dict: map[BencodeString]BencodeValue{
+			BencodeString("e"): BencodeString("?")}}), "d1:e1:?e", "it encodes Dicts")
 	assert.Equal(Encode(BencodeList([]BencodeValue{BencodeString("woman")})), "l5:womane")
 }
