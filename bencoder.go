@@ -18,29 +18,27 @@ type BencodeString string
 
 func (value BencodeString) isBencoded() {}
 
-type OMap struct {
-	keys []BencodeString
-	dict map[BencodeString]BencodeValue
-}
-
-func (o *OMap) insert(key BencodeString, value BencodeValue) {
-	o.keys = append(o.keys, key)
-	o.dict[key] = value
-}
-
-func (o *OMap) get(key string) BencodeValue {
-	return o.dict[BencodeString(key)]
-}
-
-func (o *OMap) wtf() string {
-	return "wtf"
-}
-
 type BencodeList []BencodeValue
 
 func (values BencodeList) isBencoded() {}
 
-type BencodeDict OMap
+type BencodeDict struct {
+	keys []BencodeString
+	dict map[BencodeString]BencodeValue
+}
+
+func (o *BencodeDict) insert(key BencodeString, value BencodeValue) {
+	o.keys = append(o.keys, key)
+	o.dict[key] = value
+}
+
+func (o *BencodeDict) get(key string) BencodeValue {
+	return o.dict[BencodeString(key)]
+}
+
+func (o *BencodeDict) wtf() string {
+	return "wtf"
+}
 
 func (values BencodeDict) isBencoded() {}
 
@@ -122,7 +120,7 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 	var (
 		next          int
 		internal_dict = make(map[BencodeString]BencodeValue)
-		dict          = OMap{keys: make([]BencodeString, 0, 1024), dict: internal_dict}
+		dict          = BencodeDict{keys: make([]BencodeString, 0, 1024), dict: internal_dict}
 		key           BencodeString
 		value         BencodeValue
 	)
@@ -135,7 +133,7 @@ func decodeDict(data string, index int) (BencodeDict, int) {
 		value, next = decodeValue(data, next)
 		dict.insert(key, value)
 	}
-	return BencodeDict(dict), next + 1
+	return dict, next + 1
 }
 
 func Encode(data BencodeValue) string {
