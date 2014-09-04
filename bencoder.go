@@ -36,6 +36,15 @@ func (o *BencodeDict) Update(key string, value BencodeValue) {
 	o.Dict[BencodeString(key)] = value
 }
 
+func (o *BencodeDict) Exists(key string) bool {
+	_, ok := o.Dict[BencodeString(key)]
+	if ok {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (o *BencodeDict) Get(key string) BencodeValue {
 	return o.Dict[BencodeString(key)]
 }
