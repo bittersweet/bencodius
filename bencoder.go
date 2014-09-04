@@ -141,3 +141,29 @@ func Encode(data BencodeValue) string {
 	}
 	return out
 }
+
+func DisplayHuman(data BencodeValue) string {
+	var out string
+	switch v := data.(type) {
+	case BencodeInt:
+		out = fmt.Sprintf("%d", v)
+	case BencodeString:
+		out = fmt.Sprintf("\"%s\"", v)
+	case BencodeList:
+		result := []string{}
+		for _, a := range v {
+			result = append(result, DisplayHuman(a))
+		}
+		out = fmt.Sprintf("[%s]", strings.Join(result, ""))
+	case BencodeDict:
+		result := []string{}
+		for y, z := range v {
+			if y != "pieces" {
+				result = append(result, fmt.Sprintf("%s : %s",
+					DisplayHuman(y), DisplayHuman(z)))
+			}
+		}
+		out = fmt.Sprintf("{%s}", strings.Join(result, ""))
+	}
+	return out
+}
